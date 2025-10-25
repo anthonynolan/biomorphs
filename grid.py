@@ -24,37 +24,34 @@ class Grid:
     def randomise(self):
         for x in range(self.width):
             for y in range(self.height):
-                self.grid[x, y] = 1 if (np.random.uniform() > .8) else 0
+                self.grid[x, y] = 1 if (np.random.uniform() > .95) else 0
 
-    def get_adjacent_orthogonal(self, row, col):
-        rows, cols = self.grid.shape
-        directions = [(-1,0), (1,0), (0,-1), (0,1)]
-        neighbors = []
-        
-        for dr, dc in directions:
-            r, c = row + dr, col + dc
-            if 0 <= r < rows and 0 <= c < cols:
-                neighbors.append(self.grid[r, c])
-                
-        return np.array(neighbors)
+    def get_adjacent(self, x, y):
+        neighbours = []
+        for dx in (-1, 0, 1):
+            for dy in (-1, 0, 1):
+                if dx == 0 and dy == 0:
+                    continue
+                if 0 <= x + dx < self.width and 0 <= y + dy < self.height:
+                    neighbours.append(self.grid[x + dx, y + dy])
+        return np.array(neighbours)
+
 
     def mutate(self):
+        temp = self.grid.copy()
+
         for x in range(self.width):
             for y in range(self.height):
                 # get the neighbours
-                neighbours = self.get_adjacent_orthogonal(y, x)
+                neighbours = self.get_adjacent(y, x)
 
                 if neighbours.sum()<=1:
-                    self.grid[x,y] = 0
+                    temp[x,y] = 0
                 elif neighbours.sum()>1 and neighbours.sum()<=3 :
-                    self.grid[x,y] = 1
+                    temp[x,y] = 1
                 elif neighbours.sum()>=4 :
-                    self.grid[x,y] = 0
-                elif neighbours.sum()==3 :
-                    self.grid[x, y] = 1
-
-                    
-                
+                    temp[x,y] = 0
+        self.grid = temp
 
     def as_list(self):
         return self.grid.tolist()
