@@ -23,8 +23,11 @@ function Grid({ data, onClick }) {
 
 function App() {
   const [grids, setGrids] = React.useState([]);
-  const [loading, setLoading] = React.useState(true);
+  const [initialLoading, setInitialLoading] = React.useState(true);
+  const [fetching, setFetching] = React.useState(false);
   const [error, setError] = React.useState(null);
+  const [playing, setPlaying] = React.useState(false);
+  const [intervalMs, setIntervalMs] = React.useState(500);
 
   const normalizeToList = (data) => {
     if (!data) return [];
@@ -41,9 +44,10 @@ function App() {
     return keys.map((k) => data[k]);
   };
 
-  const fetchGrids = async (payload = null) => {
+  const fetchGrids = async (payload = null, { showSpinner = true } = {}) => {
     try {
-      setLoading(true);
+      if (showSpinner) setInitialLoading(true);
+      setFetching(true);
       setError(null);
       const url = 'http://localhost:8000/grid';
       const opts = {
@@ -60,7 +64,8 @@ function App() {
     } catch (e) {
       setError(e.message || String(e));
     } finally {
-      setLoading(false);
+      if (showSpinner) setInitialLoading(false);
+      setFetching(false);
     }
   };
 
@@ -68,7 +73,24 @@ function App() {
     fetchGrids();
   }, []);
 
-  if (loading) return <div className="status">Loading…</div>;
+  // Drive the simulation with a timer when playing
+  React.useEffect(() => {
+    if (!playing) return;
+    if (!grids || grids.length === 0) return;
+    const id = setInterval(() => {
+      // Send current grids to server to receive next generation
+      fetchGrids({ grids }, { showSpinner: false });
+    }, Math.max(50, intervalMs));
+    return () => clearInterval(id);
+  }, [playing, intervalMs, grids]);
+
+  const togglePlay = () => setPlaying((p) => !p);
+  const stepOnce = () => fetchGrids({ grids }, { showSpinner: false });
+  const faster = () => setIntervalMs((ms) => Math.max(50, Math.round(ms * 0.7)));
+  const slower = () => setIntervalMs((ms) => Math.min(4000, Math.round(ms / 0.7)));
+  const reset = () => fetchGrids();
+
+  if (initialLoading) return <div className="status">Loading…</div>;
   if (error)
     return (
       <div className="status error">
@@ -78,10 +100,15 @@ function App() {
 
   return (
     <div className="wrapper">
-      <h1>Grids</h1>
+      <h1>Conway’s Game of Life</h1>
       <div className="controls">
-        <button onClick={() => fetchGrids()}>New Grids</button>
+        <button onClick={togglePlay}>{playing ? 'Pause' : 'Play'}</button>
+        <button onClick={stepOnce} disabled={playing || fetching}>Step</button>
+        <button onClick={slower}>Slower</button>
+        <button onClick={faster}>Faster</button>
+        <button onClick={reset} disabled={fetching}>New Grids</button>
         <span className="meta">{grids.length} grid(s)</span>
+        <span className="meta">Speed: {intervalMs} ms {fetching ? '(updating…)': ''}</span>
       </div>
       <div className="grid-list">
         {grids.map((g, idx) => (
@@ -94,4 +121,3 @@ function App() {
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(<App />);
-

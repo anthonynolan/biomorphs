@@ -24,7 +24,37 @@ class Grid:
     def randomise(self):
         for x in range(self.width):
             for y in range(self.height):
-                self.grid[x, y] = 1 if (np.random.uniform() > .5) else 0
+                self.grid[x, y] = 1 if (np.random.uniform() > .8) else 0
+
+    def get_adjacent_orthogonal(self, row, col):
+        rows, cols = self.grid.shape
+        directions = [(-1,0), (1,0), (0,-1), (0,1)]
+        neighbors = []
+        
+        for dr, dc in directions:
+            r, c = row + dr, col + dc
+            if 0 <= r < rows and 0 <= c < cols:
+                neighbors.append(self.grid[r, c])
+                
+        return np.array(neighbors)
+
+    def mutate(self):
+        for x in range(self.width):
+            for y in range(self.height):
+                # get the neighbours
+                neighbours = self.get_adjacent_orthogonal(y, x)
+
+                if neighbours.sum()<=1:
+                    self.grid[x,y] = 0
+                elif neighbours.sum()>1 and neighbours.sum()<=3 :
+                    self.grid[x,y] = 1
+                elif neighbours.sum()>=4 :
+                    self.grid[x,y] = 0
+                elif neighbours.sum()==3 :
+                    self.grid[x, y] = 1
+
+                    
+                
 
     def as_list(self):
         return self.grid.tolist()

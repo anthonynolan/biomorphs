@@ -1,7 +1,7 @@
 from fastapi import FastAPI, Body
 from fastapi.middleware.cors import CORSMiddleware
 from grid import Grid
-from typing import List, Dict, Any
+from typing import  Dict, Any
 
 app = FastAPI()
 
@@ -15,18 +15,21 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-DEFAULT_N = 3
+DEFAULT_N = 1
+WIDTH = 50
+HEIGHT = 50
 
 
-def _generate_grids(n: int = DEFAULT_N, width: int = 30, height: int = 30) -> List[List[List[int]]]:
-    out: List[List[List[int]]] = []
+def _generate_grids(n = DEFAULT_N, width=WIDTH, height=HEIGHT) :
+    out=[]
     for _ in range(n):
         g = Grid(width, height)
+        g.randomise()
         out.append(g.as_list())
     return out
 
 
-def _payload_to_grids(payload: Dict[str, Any]) -> List[Grid]:
+def _payload_to_grids(payload):
     """Normalize incoming payload to a list of Grid objects.
 
     Supports:
@@ -59,6 +62,8 @@ def post_grids(payload: Dict[str, Any] = Body(default=None)):
     # If a payload is provided, rehydrate into Grid objects, optionally modify, then return.
     if payload:
         grids = _payload_to_grids(payload)
+        [grid.mutate() for grid in grids]
+
         # Example: modify grids here if needed
         # for g in grids: g.randomise()
         return {"grids": [g.as_list() for g in grids]}
