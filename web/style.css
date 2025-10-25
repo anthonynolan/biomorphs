@@ -1,0 +1,119 @@
+:root {
+  --cell: 8px;
+  --gap: 2px;
+  --bg: #0b0c10;
+  --panel: #111317;
+  --text: #e6e6e6;
+  --muted: #a3a3a3;
+  --accent: #3b82f6;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, "Helvetica Neue", Arial, "Apple Color Emoji", "Segoe UI Emoji";
+  color: var(--text);
+  background: radial-gradient(1200px 600px at 50% -10%, #1a1d25, var(--bg));
+}
+
+.wrapper {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+h1 {
+  margin: 0 0 12px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.controls .meta {
+  color: var(--muted);
+}
+
+button {
+  color: white;
+  background: var(--accent);
+  border: none;
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+button:hover {
+  filter: brightness(1.05);
+}
+
+.grid {
+  display: grid;
+  gap: var(--gap);
+  background: var(--panel);
+  padding: 12px;
+  border-radius: 8px;
+  width: max-content;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.35);
+}
+
+.grid-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.grid-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: rgba(255,255,255,0.02);
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid #2a2f3a;
+  cursor: pointer;
+  transition: transform 120ms ease, box-shadow 120ms ease, border-color 120ms ease;
+}
+
+.grid-card:hover {
+  transform: translateY(-2px);
+  border-color: #384055;
+  box-shadow: 0 10px 34px rgba(0,0,0,0.4);
+}
+
+.grid-meta {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.cell {
+  width: var(--cell);
+  height: var(--cell);
+  border: 1px solid #333843;
+  background: #0f1218;
+}
+
+.cell.filled {
+  background: #e6e6e6;
+  border-color: #e6e6e6;
+}
+
+.status {
+  margin: 24px;
+  color: var(--muted);
+}
+
+.status.error {
+  color: #fca5a5;
+}
